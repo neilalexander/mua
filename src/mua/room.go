@@ -7,8 +7,6 @@ import (
 	"github.com/matrix-org/gomatrix"
 )
 
-const EVENT_TYPE = "com.github.neilalexander.mua.source"
-
 type Room struct {
 	client *Client
 	roomID string

@@ -1,5 +1,7 @@
 package mua
 
+const EVENT_TYPE = "mua.source"
+
 /*
 const luaEventTypeName = "event"
 

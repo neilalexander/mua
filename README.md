@@ -9,7 +9,7 @@ why anyone would want to, but here we are.
 The defaults will create a guest account on `matrix.org` and join you
 to `#mua-test:matrix.org`. 
 
-It'll load the Lua contents from the `com.github.neilalexander.mua.source`
+It'll load the Lua contents from the `mua.source`
 event with the state key `main` and run it. 
 
 Give it a go:
