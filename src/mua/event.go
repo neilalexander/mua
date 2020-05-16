@@ -1,190 +1,190 @@
 package mua
 
+import (
+	"encoding/json"
+	"fmt"
+	"reflect"
+
+	lua "github.com/Shopify/go-lua"
+	"github.com/matrix-org/gomatrix"
+)
+
 const EVENT_TYPE = "mua.source"
 
-/*
-const luaEventTypeName = "event"
-
 func (vm *Lua) registerEventType() {
-	mt := vm.state.NewTypeMetatable(luaEventTypeName)
-	vm.state.SetGlobal("event", mt)
-	vm.state.SetField(mt, "new", vm.state.NewFunction(vm.newEvent))
-	vm.state.SetField(mt, "__index", vm.state.SetFuncs(
-		vm.state.NewTable(),
-		map[string]lua.LGFunction{
-			"state_key":        eventGetSetStateKey,
-			"sender":           eventGetSetSender,
-			"type":             eventGetSetType,
-			"origin_server_ts": eventGetSetOriginServerTS,
-			"event_id":         eventGetSetEventID,
-			"room_id":          eventGetSetRoomID,
-			"redacts":          eventGetSetRedacts,
-			"unsigned":         eventGetSetUnsigned,
-			"content":          eventGetSetContent,
-			"prev_content":     eventGetSetPrevContent,
-			"json":             eventGetJSON,
-		},
-	))
-}
-
-func (vm *Lua) newEvent(L *lua.LState) int {
-	event := &gomatrix.Event{}
-	if L.GetTop() == 1 {
-		if eventID := L.CheckString(1); eventID != "" {
-			if err := vm.room.client.client.Event(vm.room.roomID, eventID, &event); err != nil {
-				L.RaiseError("failed to get event %q: %s", eventID, err)
-			}
-		}
+	if !lua.NewMetaTable(vm.State, "event") {
+		return
 	}
-	ud := L.NewUserData()
-	ud.Value = event
-	L.SetMetatable(ud, L.GetTypeMetatable(luaEventTypeName))
-	L.Push(ud)
-	return 1
+
+	vm.PushString("__index")
+	vm.PushValue(-2)
+	vm.SetTable(-3)
+
+	for _, f := range []lua.RegistryFunction{
+		{"new", vm.newEvent},
+		{"state_key", eventGetSetStateKey},
+		{"sender", eventGetSetSender},
+		{"type", eventGetSetType},
+		{"origin_server_ts", eventGetSetOriginServerTS},
+		{"event_id", eventGetSetEventID},
+		{"room_id", eventGetSetRoomID},
+		{"redacts", eventGetSetRedacts},
+		//{"unsigned", eventGetSetUnsigned},
+		//{"content", eventGetSetContent},
+		//{"prev_content", eventGetSetPrevContent},
+		{"json", eventGetJSON},
+	} {
+		vm.PushGoFunction(f.Function)
+		vm.SetField(-2, f.Name)
+	}
+
+	vm.SetGlobal("event")
 }
 
-func checkEvent(L *lua.LState) *gomatrix.Event {
-	ud := L.CheckUserData(1)
-	if v, ok := ud.Value.(*gomatrix.Event); ok {
+func (vm *Lua) newEvent(L *lua.State) int {
+	event := &gomatrix.Event{}
+	if L.Top() != 2 {
+		L.PushString("expected (roomid, eventid)")
+		L.Error()
+		return 0
+	}
+	roomID, ok := L.ToString(1)
+	if !ok {
+		L.PushString("roomid should be string")
+		L.Error()
+		return 0
+	}
+	eventID, ok := L.ToString(2)
+	if !ok {
+		L.PushString("eventid should be string")
+		L.Error()
+		return 0
+	}
+	/*
+		if _, err := vm.client.rooms[roomID].Event(roomID, eventID, event); err != nil {
+			L.PushString(fmt.Sprintf("Failed to get event %q: %s", eventID, err))
+			L.Error()
+			return 0
+		}
+	*/
+	_, _, _ = roomID, eventID, event
+	L.PushString("Not currently working, sorry :-(")
+	L.Error()
+	return 0
+	/*
+		L.PushUserData(event)
+		lua.SetMetaTableNamed(L, "event")
+		return 1
+	*/
+}
+
+func checkEvent(L *lua.State) *gomatrix.Event {
+	ok := L.IsUserData(1)
+	if !ok {
+		L.PushString("Expected userdata")
+		L.Error()
+		return nil
+	}
+
+	if v, ok := L.ToUserData(1).(*gomatrix.Event); ok {
 		return v
 	}
-	L.ArgError(1, "event expected")
+
+	L.PushString("Expected event")
+	L.Error()
 	return nil
 }
 
-func eventGetSetStateKey(L *lua.LState) int {
+func eventGetSetReflected(L *lua.State, key string) int {
 	p := checkEvent(L)
-	if L.GetTop() == 2 {
-		stateKey := L.CheckString(2)
-		p.StateKey = &stateKey
-		return 0
-	}
-	if p.StateKey == nil {
-		L.Push(lua.LString(""))
+	ps := reflect.ValueOf(p)
+	field := ps.Elem().FieldByName(key)
+
+	switch L.Top() {
+	case 2:
+		switch true {
+		case L.IsString(1):
+			value, _ := L.ToString(1)
+			field.SetString(value)
+		case L.IsBoolean(1):
+			value := L.ToBoolean(1)
+			field.SetBool(value)
+		case L.IsNumber(1):
+			value, _ := L.ToNumber(1)
+			field.SetUint(uint64(value))
+		case L.IsString(1):
+			value, _ := L.ToString(1)
+			field.SetString(value)
+		default:
+			L.PushString("Unsupported type")
+			L.Error()
+			return 0
+		}
+		fallthrough
+	case 1:
+		L.PushString(field.String())
 		return 1
-	}
-	L.Push(lua.LString(*p.StateKey))
-	return 1
-}
-
-func eventGetSetSender(L *lua.LState) int {
-	p := checkEvent(L)
-	if L.GetTop() == 2 {
-		p.Sender = L.CheckString(2)
+	default:
+		L.PushString("Expected 1 or 2")
+		L.Error()
 		return 0
 	}
-	L.Push(lua.LString(p.Sender))
-	return 1
 }
 
-func eventGetSetType(L *lua.LState) int {
+func eventGetSetStateKey(L *lua.State) int {
 	p := checkEvent(L)
-	if L.GetTop() == 2 {
-		p.Type = L.CheckString(2)
-		return 0
-	}
-	L.Push(lua.LString(p.Type))
-	return 1
-}
-
-func eventGetSetOriginServerTS(L *lua.LState) int {
-	p := checkEvent(L)
-	if L.GetTop() == 2 {
-		p.Timestamp = L.CheckInt64(2)
-		return 0
-	}
-	L.Push(lua.LNumber(p.Timestamp))
-	return 1
-}
-
-func eventGetSetEventID(L *lua.LState) int {
-	p := checkEvent(L)
-	if L.GetTop() == 2 {
-		p.ID = L.CheckString(2)
-		return 0
-	}
-	L.Push(lua.LString(p.ID))
-	return 1
-}
-
-func eventGetSetRoomID(L *lua.LState) int {
-	p := checkEvent(L)
-	if L.GetTop() == 2 {
-		p.RoomID = L.CheckString(2)
-		return 0
-	}
-	L.Push(lua.LString(p.RoomID))
-	return 1
-}
-
-func eventGetSetRedacts(L *lua.LState) int {
-	p := checkEvent(L)
-	if L.GetTop() == 2 {
-		p.Redacts = L.CheckString(2)
-		return 0
-	}
-	L.Push(lua.LString(p.Redacts))
-	return 1
-}
-
-func eventGetSetUnsigned(L *lua.LState) int {
-	p := checkEvent(L)
-	if L.GetTop() == 2 {
-		in := []byte(L.CheckString(2))
-		if err := json.Unmarshal(in, &p.Unsigned); err != nil {
-			L.ArgError(2, err.Error())
+	switch L.Top() {
+	case 2:
+		if stateKey, ok := L.ToString(2); ok {
+			p.StateKey = &stateKey
 		}
-		return 0
-	}
-	j, err := json.Marshal(p.Unsigned)
-	if err != nil {
-		L.RaiseError(err.Error())
-	}
-	L.Push(lua.LString(j))
-	return 1
-}
-
-func eventGetSetContent(L *lua.LState) int {
-	p := checkEvent(L)
-	if L.GetTop() == 2 {
-		in := []byte(L.CheckString(2))
-		if err := json.Unmarshal(in, &p.Content); err != nil {
-			L.ArgError(2, err.Error())
+		fallthrough
+	case 1:
+		if p.StateKey != nil {
+			L.PushString(*p.StateKey)
+		} else {
+			L.PushString("")
 		}
+		return 1
+	default:
+		L.PushString("Expected 1 or 2")
+		L.Error()
 		return 0
 	}
-	j, err := json.Marshal(p.Content)
-	if err != nil {
-		L.RaiseError(err.Error())
-	}
-	L.Push(lua.LString(j))
-	return 1
 }
 
-func eventGetSetPrevContent(L *lua.LState) int {
-	p := checkEvent(L)
-	if L.GetTop() == 2 {
-		in := []byte(L.CheckString(2))
-		if err := json.Unmarshal(in, &p.PrevContent); err != nil {
-			L.ArgError(2, err.Error())
-		}
-		return 0
-	}
-	j, err := json.Marshal(p.PrevContent)
-	if err != nil {
-		L.RaiseError(err.Error())
-	}
-	L.Push(lua.LString(j))
-	return 1
+func eventGetSetSender(L *lua.State) int {
+	return eventGetSetReflected(L, "Sender")
 }
 
-func eventGetJSON(L *lua.LState) int {
+func eventGetSetType(L *lua.State) int {
+	return eventGetSetReflected(L, "Type")
+}
+
+func eventGetSetOriginServerTS(L *lua.State) int {
+	return eventGetSetReflected(L, "Timestamp")
+}
+
+func eventGetSetEventID(L *lua.State) int {
+	return eventGetSetReflected(L, "ID")
+}
+
+func eventGetSetRoomID(L *lua.State) int {
+	return eventGetSetReflected(L, "RoomID")
+}
+
+func eventGetSetRedacts(L *lua.State) int {
+	return eventGetSetReflected(L, "Redacts")
+}
+
+func eventGetJSON(L *lua.State) int {
 	p := checkEvent(L)
 	j, err := json.Marshal(p)
 	if err != nil {
-		L.RaiseError(err.Error())
+		L.PushString(fmt.Sprintf("Failed to marshal: %s", err))
+		L.Error()
+		return 0
 	}
-	L.Push(lua.LString(j))
+	L.PushString(string(j))
 	return 1
 }
-*/

@@ -30,7 +30,8 @@ func NewLua(client *Client) (*Lua, error) {
 	lua.TableOpen(L.State)
 	lua.Bit32Open(L.State)
 
-	//vm.registerEventType()
+	L.registerEventType()
+
 	L.PushGoFunction(L.print)
 	L.SetGlobal("print")
 
