@@ -97,19 +97,29 @@ func main() {
 		fmt.Printf(Teal+"\n", "lua error: "+err.Error())
 	}
 
-	reader := bufio.NewReader(os.Stdin)
-	for {
-		fmt.Printf(Yellow, ">> ")
-		cmd, err := reader.ReadString('\n')
+	if flag.Arg(0) != "" {
+		file, err := ioutil.ReadFile(flag.Arg(0))
 		if err != nil {
 			panic(err)
 		}
-		switch strings.Trim(cmd, "\t\n\r ") {
-		case "exit":
-			return
-		default:
-			if err := lua.Execute(cmd); err != nil {
-				fmt.Printf(Red+"\n", "lua error: "+err.Error())
+		if err := lua.Execute(string(file)); err != nil {
+			fmt.Printf(Red+"\n", "lua error: "+err.Error())
+		}
+	} else {
+		reader := bufio.NewReader(os.Stdin)
+		for {
+			fmt.Printf(Yellow, ">> ")
+			cmd, err := reader.ReadString('\n')
+			if err != nil {
+				panic(err)
+			}
+			switch strings.Trim(cmd, "\t\n\r ") {
+			case "exit":
+				return
+			default:
+				if err := lua.Execute(cmd); err != nil {
+					fmt.Printf(Red+"\n", "lua error: "+err.Error())
+				}
 			}
 		}
 	}

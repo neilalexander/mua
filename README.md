@@ -56,6 +56,21 @@ m.room.member
 {"avatar_url":"","displayname":"neilalexander (Dendrite)","membership":"join"}
 ```
 
+Or run a local script, using the room state as the preloaded state:
+
+```
+$ cat getevent.lua
+ev = event.new("$vnNJvIz7PStSIOE1NDEUxLmHUprPjrwrb556S-I6bjI")
+print(ev:type())
+print(ev:content())
+
+$ go run github.com/neilalexander/mdl/cmd/mdlc test.lua
+HELLO!
+This code is running from the room state. Neat!
+m.room.member
+{"avatar_url":"","displayname":"neilalexander (Dendrite)","membership":"join"}
+```
+
 ## Encode some Lua
 
 You can also create a Lua file, say `test.lua`:
