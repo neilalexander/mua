@@ -1,7 +1,6 @@
 package mdl
 
 import (
-	"bytes"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
@@ -31,9 +30,6 @@ func NewSourceFromJSON(j []byte) (*Source, error) {
 }
 
 func NewSourceFromEvent(event gomatrix.Event) (*Source, error) {
-	if event.Type != EVENT_TYPE {
-		return nil, errors.New("event is incorrect type")
-	}
 	if event.Content == nil {
 		return nil, errors.New("event has no content")
 	}
@@ -49,12 +45,7 @@ func NewSourceFromEvent(event gomatrix.Event) (*Source, error) {
 }
 
 func (b SourceCode) MarshalJSON() ([]byte, error) {
-	lines := bytes.Split(b, []byte("\n"))
-	for l := range lines {
-		lines[l] = bytes.Trim(lines[l], "\r\n\t ")
-	}
-	byt := bytes.Join(lines, []byte("\n"))
-	b64 := base64.RawStdEncoding.EncodeToString(byt)
+	b64 := base64.RawStdEncoding.EncodeToString(b)
 	b64 = fmt.Sprintf("\"%s\"", b64)
 	return []byte(b64), nil
 }

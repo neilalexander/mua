@@ -1,10 +1,4 @@
-github.com/chzyer/logex v1.1.10/go.mod h1:+Ywpsq7O8HXn0nuIou7OrIPyXbp3wmkHB+jjWRnGsAI=
-github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e/go.mod h1:nSuG5e5PlCu98SY8svDHJxuZscDgtXS6KTTbou5AhLI=
-github.com/chzyer/test v0.0.0-20180213035817-a1ea475d72b1/go.mod h1:Q3SI9o4m/ZMnBNeIyt5eFwwo7qiLfzFZmjNmxjkiQlU=
-github.com/matrix-org/gomatrix v0.0.0-20200501121722-e5578b12c752 h1:xYU2vdY5uh7QX4RZqeuKpmv0ffBEGYHhgu4Mmm3RVnc=
-github.com/matrix-org/gomatrix v0.0.0-20200501121722-e5578b12c752/go.mod h1:/gBX06Kw0exX1HrwmoBibFA98yBk/jxKpGVeyQbff+s=
+github.com/Shopify/go-lua v0.0.0-20191113154418-05ce435a9edd h1:etO8lBj+8Fxlw61n4hxWfnqsx95h/jD9W8ltrHkQLls=
+github.com/Shopify/go-lua v0.0.0-20191113154418-05ce435a9edd/go.mod h1:lvS2IGWEGk+KQkRrCXuWlcsHO5BitT0HyhnP51rh3gA=
 github.com/matrix-org/gomatrix v0.0.0-20200516134902-015e6dc5a1f1 h1:4n7AuD68UqDpH8L17iOsE6gElP+660fxDzgs3Sn1duE=
 github.com/matrix-org/gomatrix v0.0.0-20200516134902-015e6dc5a1f1/go.mod h1:/gBX06Kw0exX1HrwmoBibFA98yBk/jxKpGVeyQbff+s=
-github.com/yuin/gopher-lua v0.0.0-20191220021717-ab39c6098bdb h1:ZkM6LRnq40pR1Ox0hTHlnpkcOTuFIDQpZ1IN8rKKhX0=
-github.com/yuin/gopher-lua v0.0.0-20191220021717-ab39c6098bdb/go.mod h1:gqRgreBUhTSL0GeU64rtZ3Uq3wtjOa/TB2YfrtkCbVQ=
-golang.org/x/sys v0.0.0-20190204203706-41f3e6584952/go.mod h1:STP8DvDyc/dI5b8T5hshtkjS+E42TnysNCUPdjciGhY=

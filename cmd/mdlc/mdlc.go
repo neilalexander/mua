@@ -82,27 +82,29 @@ func main() {
 		}
 	}
 
-	room, err := client.NewRoom(roomID)
-	if err != nil {
-		panic(err)
-	}
-	lua, err := room.NewLua()
-	if err != nil {
-		panic(err)
-	}
-
-	if err := lua.Execute(`
-		load("main")
-	`); err != nil {
-		fmt.Printf(Teal+"\n", "lua error: "+err.Error())
-	}
-
-	if flag.Arg(0) != "" {
-		file, err := ioutil.ReadFile(flag.Arg(0))
+	/*
+		room, err := client.NewRoom(roomID)
 		if err != nil {
 			panic(err)
 		}
-		if err := lua.Execute(string(file)); err != nil {
+	*/
+
+	init := `{
+		"type": 0,
+		"source": "G0x1YVIAAQQIBAgAGZMNChoKAAAAAAAAAAAAAQIIAAAABgBAAEFAAAAdQAABCMBAgQYAQABBAAEAHUAAAR8AgAAFAAAABAYAAAAAAAAAcHJpbnQABBkAAAAAAAAASSBhbSBnb2luZyB0byBzZXQgJ2ZvbychAAQEAAAAAAAAAGZvbwAEBAAAAAAAAABiYXIABBIAAAAAAAAAT0ssIGdpdmUgaXQgYSBnby4AAAAAAAEAAAABAAoAAAAAAAAAQHRlc3QubHVhAAgAAAABAAAAAQAAAAEAAAACAAAAAwAAAAMAAAADAAAAAwAAAAAAAAABAAAABQAAAAAAAABfRU5WAA"
+	}`
+
+	src, err := mdl.NewSourceFromJSON([]byte(init))
+	if err != nil {
+		panic(err)
+	}
+
+	if err := client.Execute(string(src.Source)); err != nil {
+		fmt.Printf(Red+"\n", "init lua error: "+err.Error())
+	}
+
+	if file := flag.Arg(0); file != "" {
+		if err := client.ExecuteFile(file); err != nil {
 			fmt.Printf(Red+"\n", "lua error: "+err.Error())
 		}
 	} else {
@@ -117,7 +119,7 @@ func main() {
 			case "exit":
 				return
 			default:
-				if err := lua.Execute(cmd); err != nil {
+				if err := client.Execute(cmd); err != nil {
 					fmt.Printf(Red+"\n", "lua error: "+err.Error())
 				}
 			}

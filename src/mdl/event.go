@@ -1,12 +1,6 @@
 package mdl
 
-import (
-	"encoding/json"
-
-	"github.com/matrix-org/gomatrix"
-	lua "github.com/yuin/gopher-lua"
-)
-
+/*
 const luaEventTypeName = "event"
 
 func (vm *Lua) registerEventType() {
@@ -191,3 +185,4 @@ func eventGetJSON(L *lua.LState) int {
 	L.Push(lua.LString(j))
 	return 1
 }
+*/

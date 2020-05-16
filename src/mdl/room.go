@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/matrix-org/gomatrix"
-	lua "github.com/yuin/gopher-lua"
 )
 
 const EVENT_TYPE = "com.github.neilalexander.mdl.source"
@@ -13,30 +12,6 @@ const EVENT_TYPE = "com.github.neilalexander.mdl.source"
 type Room struct {
 	client *Client
 	roomID string
-	state  *Lua
-}
-
-func (r *Room) NewLua() (*Lua, error) {
-	vm := &Lua{
-		room: r,
-		state: lua.NewState(lua.Options{
-			MinimizeStackMemory: true,
-			SkipOpenLibs:        true,
-		}),
-		modules: defaultModules,
-	}
-
-	lua.OpenString(vm.state)
-	lua.OpenMath(vm.state)
-	lua.OpenTable(vm.state)
-
-	vm.registerEventType()
-
-	vm.state.SetGlobal("require", vm.state.NewFunction(vm.require))
-	vm.state.SetGlobal("load", vm.state.NewFunction(vm.load))
-	vm.state.SetGlobal("print", vm.state.NewFunction(vm.print))
-
-	return vm, nil
 }
 
 func (r *Room) Event(eventID string) (*Source, error) {

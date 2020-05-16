@@ -1,9 +1,6 @@
 package mdl
 
-import (
-	"testing"
-)
-
+/*
 func TestInterpreter(t *testing.T) {
 	script := `
 		foo = require("test")
@@ -20,3 +17,4 @@ func TestInterpreter(t *testing.T) {
 		t.Fatalf("Failed to run test script: %s", err)
 	}
 }
+*/

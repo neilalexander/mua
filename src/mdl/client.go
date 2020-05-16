@@ -8,6 +8,7 @@ import (
 
 type Client struct {
 	client *gomatrix.Client
+	state  *Lua
 	rooms  map[string]*Room
 }
 
@@ -31,10 +32,18 @@ func NewClient(hsURL, userID, accessToken string) (*Client, error) {
 		client.AccessToken = register.AccessToken
 	}
 
-	return &Client{
+	c := &Client{
 		client: client,
 		rooms:  make(map[string]*Room),
-	}, nil
+	}
+
+	vm, err := NewLua(c)
+	if err != nil {
+		return nil, fmt.Errorf("NewLua: %w", err)
+	}
+	c.state = vm
+
+	return c, nil
 }
 
 func (c *Client) UserID() string {
@@ -45,44 +54,41 @@ func (c *Client) AccessToken() string {
 	return c.client.AccessToken
 }
 
+func (c *Client) Execute(source string) error {
+	return c.state.Execute(source)
+}
+
+func (c *Client) ExecuteFile(file string) error {
+	return c.state.ExecuteFile(file)
+}
+
 func (c *Client) NewRoom(roomID string) (*Room, error) {
-	var err error
-	/*
-		var roomID string
-		resp, err := c.client.JoinRoom(roomIDOrAlias, "", map[string]string{
-			"display_name": "MLD",
-		})
+	resp, err := c.client.JoinRoom(roomID, "", map[string]string{
+		"display_name": "Mua",
+	})
 
-		switch e := err.(type) {
-		case nil:
-			roomID = resp.RoomID
-		case gomatrix.HTTPError:
-			if e.Code == 404 {
-				create, createErr := c.client.CreateRoom(&gomatrix.ReqCreateRoom{
-					Name:       "MLD Room",
-					Visibility: "private",
-				})
-				if createErr != nil {
-					return nil, fmt.Errorf("c.client.CreateRoom: %w", createErr)
-				}
-				roomID = create.RoomID
-			} else {
-				return nil, fmt.Errorf("c.client.JoinRoom: %s (%s)", e.Message, e.Contents)
+	switch e := err.(type) {
+	case nil:
+		roomID = resp.RoomID
+	case gomatrix.HTTPError:
+		if e.Code == 404 {
+			create, createErr := c.client.CreateRoom(&gomatrix.ReqCreateRoom{
+				Name:       "Mua Room",
+				Visibility: "private",
+			})
+			if createErr != nil {
+				return nil, fmt.Errorf("c.client.CreateRoom: %w", createErr)
 			}
-		default:
-			return nil, fmt.Errorf("c.client.JoinRoom: %w", err)
+			roomID = create.RoomID
+		} else {
+			return nil, fmt.Errorf("c.client.JoinRoom: %s (%s)", e.Message, e.Contents)
 		}
-	*/
+	default:
+		return nil, fmt.Errorf("c.client.JoinRoom: %w", err)
+	}
 
-	room := &Room{
+	return &Room{
 		client: c,
 		roomID: roomID,
-	}
-
-	room.state, err = room.NewLua()
-	if err != nil {
-		return nil, fmt.Errorf("room.NewLua: %w", err)
-	}
-
-	return room, nil
+	}, nil
 }
