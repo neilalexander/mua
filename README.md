@@ -65,7 +65,14 @@ $ go run github.com/neilalexander/mdl/cmd/mdlc -encode test.lua
 }
 ```
 
-You can now use your favourite client to send a custom event with this encoded blob as the content.
+You can now use your favourite client to send a custom event with this
+encoded blob as the content.
+
+## Is this safe?
+
+You can't access the filesystem, sockets, system calls or such within
+the Lua environment. It should be reasonably self-contained as a result,
+although this may also make it a bit harder to do anything useful with.
 
 ## Why would you do this?
 
