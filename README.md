@@ -44,6 +44,18 @@ I am going to set 'foo'!
 OK, give it a go.
 ```
 
+You can load an event from the room:
+
+```
+>> ev = event.new("$vnNJvIz7PStSIOE1NDEUxLmHUprPjrwrb556S-I6bjI")
+>> print(ev:json())
+{"state_key":"@neilalexander:dendrite.neilalexander.dev","sender":"@neilalexander:dendrite.neilalexander.dev","type":"m.room.member","origin_server_ts":1589645356974,"event_id":"$vnNJvIz7PStSIOE1NDEUxLmHUprPjrwrb556S-I6bjI","room_id":"!TdSVXZoEcLugVpglQn:matrix.org","unsigned":{},"content":{"avatar_url":"","displayname":"neilalexander (Dendrite)","membership":"join"}}
+>> print(ev:type())
+m.room.member
+>> print(ev:content())
+{"avatar_url":"","displayname":"neilalexander (Dendrite)","membership":"join"}
+```
+
 ## Encode some Lua
 
 You can also create a Lua file, say `test.lua`:

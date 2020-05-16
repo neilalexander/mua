@@ -13,6 +13,18 @@ type Lua struct {
 	modules map[string]LuaModule
 }
 
+type LuaModule struct {
+	table map[string]lua.LGFunction
+}
+
+var defaultModules = map[string]LuaModule{
+	"test": {
+		table: map[string]lua.LGFunction{
+			//"print": print,
+		},
+	},
+}
+
 func (vm *Lua) Execute(source string) error {
 	return vm.state.DoString(source)
 }
@@ -65,5 +77,11 @@ func (vm *Lua) load(L *lua.LState) int {
 		L.RaiseError("L.DoString: %s", err)
 	}
 
+	return 0
+}
+
+func (vm *Lua) print(L *lua.LState) int {
+	str := L.CheckString(1)
+	fmt.Printf("\033[1;32m%s\033[0m\n", str)
 	return 0
 }

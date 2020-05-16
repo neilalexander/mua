@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/matrix-org/gomatrix"
-	"github.com/neilalexander/mdl/src/mdl/base"
 	lua "github.com/yuin/gopher-lua"
 )
 
@@ -31,10 +30,11 @@ func (r *Room) NewLua() (*Lua, error) {
 	lua.OpenMath(vm.state)
 	lua.OpenTable(vm.state)
 
+	vm.registerEventType()
+
 	vm.state.SetGlobal("require", vm.state.NewFunction(vm.require))
 	vm.state.SetGlobal("load", vm.state.NewFunction(vm.load))
-
-	vm.state.SetGlobal("print", vm.state.NewFunction(base.Print))
+	vm.state.SetGlobal("print", vm.state.NewFunction(vm.print))
 
 	return vm, nil
 }
