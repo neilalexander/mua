@@ -36,6 +36,14 @@ bar
 >> 
 ```
 
+... or by event ID:
+
+```
+>> load("$Ecwdeae6qipZA6Dk_fZKCa4NO-iYWs-uDK0E-2fzLdk")
+I am going to set 'foo'!
+OK, give it a go.
+```
+
 ## Encode some Lua
 
 You can also create a Lua file, say `test.lua`:
