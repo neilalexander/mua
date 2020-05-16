@@ -28,13 +28,13 @@ var userID = *flag.String("user", "", "the user ID to connect with, or blank for
 var accessToken = *flag.String("accesstoken", "", "the access token to connect with, or blank for guest")
 var roomID = *flag.String("room", "!TdSVXZoEcLugVpglQn:matrix.org", "the room ID to use as our environment")
 
-var compile = flag.String("compile", "", "compile the given file and print out event content")
+var encode = flag.String("encode", "", "encode the given file and print out event content")
 
 func main() {
 	flag.Parse()
 
-	if compile != nil && *compile != "" {
-		file, err := ioutil.ReadFile(*compile)
+	if encode != nil && *encode != "" {
+		file, err := ioutil.ReadFile(*encode)
 		if err != nil {
 			panic(err)
 		}

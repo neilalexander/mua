@@ -24,7 +24,7 @@ type Lua.
 Try importing something from a different event state key:
 
 ```
-$ go run ./cmd/mdlc
+$ go run github.com/neilalexander/mdl/cmd/mdlc
 Using https://matrix.org
 HELLO!
 This code is running from the room state. Neat!
@@ -35,6 +35,29 @@ OK, give it a go.
 bar
 >> 
 ```
+
+## Encode some Lua
+
+You can also create a Lua file, say `test.lua`:
+
+```
+$ cat test.lua
+print("I am going to set 'foo'!")
+foo = "bar"
+print("OK, give it a go.")
+```
+
+and encode it with the `-encode test.lua` command line parameters:
+
+```
+$ go run github.com/neilalexander/mdl/cmd/mdlc -encode test.lua
+{
+  "type": 0,
+  "source": "cHJpbnQoIkkgYW0gZ29pbmcgdG8gc2V0ICdmb28nISIpCmZvbyA9ICJiYXIiCnByaW50KCJPSywgZ2l2ZSBpdCBhIGdvLiIpCg"
+}
+```
+
+You can now use your favourite client to send a custom event with this encoded blob as the content.
 
 ## Why would you do this?
 
