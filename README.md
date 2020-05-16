@@ -21,7 +21,9 @@ go run github.com/neilalexander/mdl/cmd/mdlc
 If all goes well, you should get an interactive prompt in which you can
 type Lua.
 
-Try importing something from a different event state key:
+## Loading Lua from the room
+
+Using `load()`, you can import something from a specific event state key:
 
 ```
 $ go run github.com/neilalexander/mdl/cmd/mdlc
@@ -44,6 +46,8 @@ I am going to set 'foo'!
 OK, give it a go.
 ```
 
+## Loading room events
+
 You can load an event from the room:
 
 ```
@@ -56,7 +60,9 @@ m.room.member
 {"avatar_url":"","displayname":"neilalexander (Dendrite)","membership":"join"}
 ```
 
-Or run a local script, using the room state as the preloaded state:
+## Run local scripts
+
+Run a local script, using the room state as the preloaded state:
 
 ```
 $ cat getevent.lua
@@ -70,6 +76,8 @@ This code is running from the room state. Neat!
 m.room.member
 {"avatar_url":"","displayname":"neilalexander (Dendrite)","membership":"join"}
 ```
+
+You can `load()` in your script as normal in order to import and run Lua from the room.
 
 ## Encode some Lua
 
