@@ -1,4 +1,4 @@
-module github.com/neilalexander/mdl
+module github.com/neilalexander/mua
 
 go 1.14
 
