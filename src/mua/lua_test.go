@@ -1,4 +1,4 @@
-package mdl
+package mua
 
 /*
 func TestInterpreter(t *testing.T) {

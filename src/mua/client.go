@@ -1,4 +1,4 @@
-package mdl
+package mua
 
 import (
 	"fmt"
@@ -23,7 +23,7 @@ func NewClient(hsURL, userID, accessToken string) (*Client, error) {
 	if userID == "" || accessToken == "" {
 		fmt.Println("Registering guest user")
 		register, _, err := client.RegisterGuest(&gomatrix.ReqRegister{
-			InitialDeviceDisplayName: "MLD",
+			InitialDeviceDisplayName: "Mua",
 		})
 		if err != nil {
 			return nil, fmt.Errorf("client.RegisterGuest: %w", err)

@@ -1,21 +1,21 @@
-# Matrix-Distributed Lua
+# Mua
 
 This is a mad-science project to turn Matrix rooms into a kind of
 distributed Lua environment. It's probably crazy and I don't really know
 why anyone would want to, but here we are.
 
-## Starting mdlc
+## Starting muac
 
 The defaults will create a guest account on `matrix.org` and join you
-to `#mdl-test:matrix.org`. 
+to `#mua-test:matrix.org`. 
 
-It'll load the Lua contents from the `com.github.neilalexander.mdl.source`
+It'll load the Lua contents from the `com.github.neilalexander.mua.source`
 event with the state key `main` and run it. 
 
 Give it a go:
 
 ```
-go run github.com/neilalexander/mdl/cmd/mdlc
+go run github.com/neilalexander/mua/cmd/muac
 ```
 
 If all goes well, you should get an interactive prompt in which you can
@@ -26,7 +26,7 @@ type Lua.
 Using `load()`, you can import something from a specific event state key:
 
 ```
-$ go run github.com/neilalexander/mdl/cmd/mdlc
+$ go run github.com/neilalexander/mua/cmd/muac
 Using https://matrix.org
 HELLO!
 This code is running from the room state. Neat!
@@ -70,7 +70,7 @@ ev = event.new("$vnNJvIz7PStSIOE1NDEUxLmHUprPjrwrb556S-I6bjI")
 print(ev:type())
 print(ev:content())
 
-$ go run github.com/neilalexander/mdl/cmd/mdlc test.lua
+$ go run github.com/neilalexander/mua/cmd/muac test.lua
 HELLO!
 This code is running from the room state. Neat!
 m.room.member
@@ -93,7 +93,7 @@ print("OK, give it a go.")
 and encode it with the `-encode test.lua` command line parameters:
 
 ```
-$ go run github.com/neilalexander/mdl/cmd/mdlc -encode test.lua
+$ go run github.com/neilalexander/mua/cmd/muac -encode test.lua
 {
   "type": 0,
   "source": "cHJpbnQoIkkgYW0gZ29pbmcgdG8gc2V0ICdmb28nISIpCmZvbyA9ICJiYXIiCnByaW50KCJPSywgZ2l2ZSBpdCBhIGdvLiIpCg"

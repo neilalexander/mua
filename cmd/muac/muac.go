@@ -9,7 +9,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/neilalexander/mdl/src/mdl"
+	"github.com/neilalexander/mua/src/mua"
 )
 
 var (
@@ -38,9 +38,9 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-		src := mdl.Source{
-			Type:   mdl.SourceTypeLua,
-			Source: mdl.SourceCode(file),
+		src := mua.Source{
+			Type:   mua.SourceTypeLua,
+			Source: mua.SourceCode(file),
 		}
 		j, err := json.MarshalIndent(src, "", "  ")
 		if err != nil {
@@ -51,7 +51,7 @@ func main() {
 	}
 
 	if homedir, err := os.UserHomeDir(); err == nil {
-		if file, err := ioutil.ReadFile(homedir + "/.mdlconfig"); err == nil {
+		if file, err := ioutil.ReadFile(homedir + "/.muaconfig"); err == nil {
 			var cookie map[string]string
 			if err = json.Unmarshal(file, &cookie); err == nil {
 				hsURL = cookie["home_server"]
@@ -61,7 +61,7 @@ func main() {
 		}
 	}
 
-	client, err := mdl.NewClient(hsURL, userID, accessToken)
+	client, err := mua.NewClient(hsURL, userID, accessToken)
 	if err != nil {
 		panic(err)
 	}
@@ -78,7 +78,7 @@ func main() {
 		}
 		j, err := json.MarshalIndent(cookie, "", "  ")
 		if err == nil {
-			_ = ioutil.WriteFile(homedir+"/.mdlconfig", j, 0600)
+			_ = ioutil.WriteFile(homedir+"/.muaconfig", j, 0600)
 		}
 	}
 
@@ -94,7 +94,7 @@ func main() {
 		"source": "G0x1YVIAAQQIBAgAGZMNChoKAAAAAAAAAAAAAQIIAAAABgBAAEFAAAAdQAABCMBAgQYAQABBAAEAHUAAAR8AgAAFAAAABAYAAAAAAAAAcHJpbnQABBkAAAAAAAAASSBhbSBnb2luZyB0byBzZXQgJ2ZvbychAAQEAAAAAAAAAGZvbwAEBAAAAAAAAABiYXIABBIAAAAAAAAAT0ssIGdpdmUgaXQgYSBnby4AAAAAAAEAAAABAAoAAAAAAAAAQHRlc3QubHVhAAgAAAABAAAAAQAAAAEAAAACAAAAAwAAAAMAAAADAAAAAwAAAAAAAAABAAAABQAAAAAAAABfRU5WAA"
 	}`
 
-	src, err := mdl.NewSourceFromJSON([]byte(init))
+	src, err := mua.NewSourceFromJSON([]byte(init))
 	if err != nil {
 		panic(err)
 	}

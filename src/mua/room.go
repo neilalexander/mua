@@ -1,4 +1,4 @@
-package mdl
+package mua
 
 import (
 	"encoding/json"
@@ -7,7 +7,7 @@ import (
 	"github.com/matrix-org/gomatrix"
 )
 
-const EVENT_TYPE = "com.github.neilalexander.mdl.source"
+const EVENT_TYPE = "com.github.neilalexander.mua.source"
 
 type Room struct {
 	client *Client

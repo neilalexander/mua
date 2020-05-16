@@ -1,4 +1,4 @@
-package mdl
+package mua
 
 import (
 	"encoding/base64"
