@@ -82,10 +82,12 @@ func main() {
 		}
 	}
 
-	_, err = client.NewRoom(roomID)
-	if err != nil {
-		panic(err)
-	}
+	/*
+		room, err := client.NewRoom(roomID)
+		if err != nil {
+			panic(err)
+		}
+	*/
 
 	init := `{
 		"type": 0,

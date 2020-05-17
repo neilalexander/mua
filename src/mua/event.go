@@ -42,40 +42,39 @@ func (vm *Lua) registerEventType() {
 }
 
 func (vm *Lua) newEvent(L *lua.State) int {
-	event := &gomatrix.Event{}
+	var err error
+	var event *gomatrix.Event
+
 	if L.Top() != 2 {
 		L.PushString("expected (roomid, eventid)")
 		L.Error()
 		return 0
 	}
-	roomID, ok := L.ToString(1)
-	if !ok {
-		L.PushString("roomid should be string")
+
+	roomID, ok1 := L.ToString(1)
+	eventID, ok2 := L.ToString(2)
+	if !ok1 || !ok2 {
+		L.PushString("expected (roomid, eventid)")
 		L.Error()
 		return 0
 	}
-	eventID, ok := L.ToString(2)
-	if !ok {
-		L.PushString("eventid should be string")
+
+	room, ok3 := vm.client.rooms[roomID]
+	if !ok3 {
+		L.PushString("room is not in scope")
 		L.Error()
 		return 0
 	}
-	/*
-		if _, err := vm.client.rooms[roomID].Event(roomID, eventID, event); err != nil {
-			L.PushString(fmt.Sprintf("Failed to get event %q: %s", eventID, err))
-			L.Error()
-			return 0
-		}
-	*/
-	_, _, _ = roomID, eventID, event
-	L.PushString("Not currently working, sorry :-(")
-	L.Error()
-	return 0
-	/*
-		L.PushUserData(event)
-		lua.SetMetaTableNamed(L, "event")
-		return 1
-	*/
+
+	if event, err = room.Event(eventID); err != nil {
+		L.PushString(fmt.Sprintf("Failed to get event %q: %s", eventID, err))
+		L.Error()
+		return 0
+	}
+
+	L.PushUserData(event)
+	lua.SetMetaTableNamed(L, "event")
+	return 1
 }
 
 func checkEvent(L *lua.State) *gomatrix.Event {

@@ -12,7 +12,7 @@ type Room struct {
 	roomID string
 }
 
-func (r *Room) Event(eventID string) (*Source, error) {
+func (r *Room) Event(eventID string) (*gomatrix.Event, error) {
 	var event gomatrix.Event
 	err := r.client.client.Event(r.roomID, eventID, &event)
 	switch e := err.(type) {
@@ -25,22 +25,38 @@ func (r *Room) Event(eventID string) (*Source, error) {
 	default:
 		return nil, fmt.Errorf("r.client.client.Event: %w", err)
 	}
-	return NewSourceFromEvent(event)
+	return &event, nil
 }
 
-func (r *Room) StateEvent(stateKey string) (*Source, error) {
-	var event map[string]interface{}
-	err := r.client.client.StateEvent(r.roomID, EVENT_TYPE, stateKey, &event)
+func (r *Room) State(eventType, stateKey string) (map[string]interface{}, error) {
+	var state map[string]interface{}
+	err := r.client.client.StateEvent(r.roomID, eventType, stateKey, &state)
 	switch e := err.(type) {
 	case nil:
-		j, err := json.Marshal(event)
-		if err != nil {
-			return nil, fmt.Errorf("json.Marshal: %w", err)
-		}
-		return NewSourceFromJSON(j)
+		return state, nil
 	case gomatrix.HTTPError:
 		return nil, fmt.Errorf("r.client.client.StateEvent HTTP code %d: %s\nContents: %s", e.Code, e.Message, e.Contents)
 	default:
 		return nil, fmt.Errorf("r.client.client.StateEvent: %w", err)
+	}
+}
+
+func (r *Room) SourceFromEvent(eventID string) (*Source, error) {
+	if event, err := r.Event(eventID); err == nil {
+		return NewSourceFromEvent(*event)
+	} else {
+		return nil, err
+	}
+}
+
+func (r *Room) SourceFromStateEvent(eventType, stateKey string) (*Source, error) {
+	if state, err := r.State(eventType, stateKey); err == nil {
+		j, err := json.Marshal(state)
+		if err != nil {
+			return nil, fmt.Errorf("json.Marshal: %w", err)
+		}
+		return NewSourceFromJSON(j)
+	} else {
+		return nil, err
 	}
 }

@@ -9,8 +9,8 @@ why anyone would want to, but here we are.
 The defaults will create a guest account on `matrix.org` and join you
 to `#mua-test:matrix.org`. 
 
-It'll load the Lua contents from the `mua.source`
-event with the state key `main` and run it. 
+It'll load the Lua contents from the `mua.source` event with the state
+key `main` and run it. 
 
 Give it a go:
 
@@ -23,27 +23,25 @@ type Lua.
 
 ## Loading Lua from the room
 
-Using `load()`, you can import something from a specific event state key:
+Using `importstate()`, you can import something from a specific event state key:
 
 ```
 $ go run github.com/neilalexander/mua/cmd/muac
 Using https://matrix.org
 HELLO!
 This code is running from the room state. Neat!
->> load("test")
-I am going to set 'foo'!
-OK, give it a go.
->> print(foo)
-bar
+>> importstate("!TdSVXZoEcLugVpglQn:matrix.org", "mua.source", "main")
+HELLO!
+This is running from bytecodes stored in the room state.
 >> 
 ```
 
-... or by event ID:
+... or the same event by event ID instead:
 
 ```
->> load("$Ecwdeae6qipZA6Dk_fZKCa4NO-iYWs-uDK0E-2fzLdk")
-I am going to set 'foo'!
-OK, give it a go.
+>> importevent("!TdSVXZoEcLugVpglQn:matrix.org", "$Z_brwOSlxvtgp24_g_N4QmzBQtSEtl7rI4IQIp02S94")
+HELLO!
+This is running from bytecodes stored in the room state.
 ```
 
 ## Loading room events
@@ -51,13 +49,11 @@ OK, give it a go.
 You can load an event from the room:
 
 ```
->> ev = event.new("$vnNJvIz7PStSIOE1NDEUxLmHUprPjrwrb556S-I6bjI")
+>> ev = event.new("!TdSVXZoEcLugVpglQn:matrix.org", "$Z_brwOSlxvtgp24_g_N4QmzBQtSEtl7rI4IQIp02S94")
 >> print(ev:json())
-{"state_key":"@neilalexander:dendrite.neilalexander.dev","sender":"@neilalexander:dendrite.neilalexander.dev","type":"m.room.member","origin_server_ts":1589645356974,"event_id":"$vnNJvIz7PStSIOE1NDEUxLmHUprPjrwrb556S-I6bjI","room_id":"!TdSVXZoEcLugVpglQn:matrix.org","unsigned":{},"content":{"avatar_url":"","displayname":"neilalexander (Dendrite)","membership":"join"}}
+{"state_key":"main","sender":"@neilalexander:matrix.org","type":"mua.source","origin_server_ts":1589709947669,"event_id":"$Z_brwOSlxvtgp24_g_N4QmzBQtSEtl7rI4IQIp02S94","room_id":"!TdSVXZoEcLugVpglQn:matrix.org","unsigned":{"age":1079280},"content":{"source":"cHJpbnQoIkhFTExPISIpCnByaW50KCJUaGlzIGlzIHJ1bm5pbmcgZnJvbSBieXRlY29kZXMgc3RvcmVkIGluIHRoZSByb29tIHN0YXRlLiIpCmxvYWRlZCA9IHRydWUK","type":0}}
 >> print(ev:type())
-m.room.member
->> print(ev:content())
-{"avatar_url":"","displayname":"neilalexander (Dendrite)","membership":"join"}
+mua.source
 ```
 
 ## Run local scripts
@@ -81,22 +77,14 @@ You can `load()` in your script as normal in order to import and run Lua from th
 
 ## Encode some Lua
 
-You can also create a Lua file, say `test.lua`:
-
-```
-$ cat test.lua
-print("I am going to set 'foo'!")
-foo = "bar"
-print("OK, give it a go.")
-```
-
-and encode it with the `-encode test.lua` command line parameters:
+You can also take a compiled Lua file from `luac`, say `luac.out`, and
+encode it with the `-encode luac.out` command line parameters:
 
 ```
 $ go run github.com/neilalexander/mua/cmd/muac -encode test.lua
 {
   "type": 0,
-  "source": "cHJpbnQoIkkgYW0gZ29pbmcgdG8gc2V0ICdmb28nISIpCmZvbyA9ICJiYXIiCnByaW50KCJPSywgZ2l2ZSBpdCBhIGdvLiIpCg"
+  "source": "G0x1YVIAAQQIBAgAGZMNChoKAAAAAAAAAAAAAQQVAAAABgBAAEFAAACBgAAAHUCAAQbAQABBQAAAgQABAMFAAQAdQAACBoBBAEHAAQCGAEIAmwAAABeAAICBQAIAm0AAABcAAICBgAIAVoCAAB1AAAEfAIAACwAAAAQMAAAAAAAAAGltcG9ydGV2ZW50AAQfAAAAAAAAACFUZFNWWFpvRWNMdWdWcGdsUW46bWF0cml4Lm9yZwAELQAAAAAAAAAkWl9icndPU2x4dnRncDI0X2dfTjRRbXpCUXRTRXRsN3JJNElRSXAwMlM5NAAEDAAAAAAAAABpbXBvcnRzdGF0ZQAECwAAAAAAAABtdWEuc291cmNlAAQFAAAAAAAAAG1haW4ABAYAAAAAAAAAcHJpbnQABAkAAAAAAAAATG9hZGVkPyAABAcAAAAAAAAAbG9hZGVkAAQEAAAAAAAAAHllcwAEAwAAAAAAAABubwAAAAAAAQAAAAEACgAAAAAAAABAdGVzdC5sdWEAFQAAAAEAAAABAAAAAQAAAAEAAAACAAAAAgAAAAIAAAACAAAAAgAAAAQAAAAEAAAABAAAAAQAAAAEAAAABAAAAAQAAAAEAAAABAAAAAQAAAAEAAAABAAAAAAAAAABAAAABQAAAAAAAABfRU5WAA"
 }
 ```
 

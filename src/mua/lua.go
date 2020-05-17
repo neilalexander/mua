@@ -24,7 +24,6 @@ func NewLua(client *Client) (*Lua, error) {
 		},
 	}
 
-	//lua.BaseOpen(L.State)
 	lua.StringOpen(L.State)
 	lua.MathOpen(L.State)
 	lua.TableOpen(L.State)
@@ -38,8 +37,11 @@ func NewLua(client *Client) (*Lua, error) {
 	L.PushGoFunction(L.require)
 	L.SetGlobal("require")
 
-	L.PushGoFunction(L.importlua)
-	L.SetGlobal("import")
+	L.PushGoFunction(L.importevent)
+	L.SetGlobal("importevent")
+
+	L.PushGoFunction(L.importstate)
+	L.SetGlobal("importstate")
 
 	return L, nil
 }
@@ -75,38 +77,76 @@ func (vm *Lua) requestModule(moduleName string) (*LuaModule, error) {
 	return nil, errors.New("requestModule not implemented")
 }
 
-func (vm *Lua) importlua(L *lua.State) int {
-	if L.Top() < 2 {
-		L.PushString("Expecting (roomid, eventid) or (roomid, eventtype, statekey)")
-		L.Error()
-		return 0
-	}
-
+func (vm *Lua) importevent(L *lua.State) int {
 	roomID, ok := L.ToString(1)
 	if !ok {
-		L.PushString("Expecting roomid as string")
+		L.PushString("Expecting roomid as string in first parameter")
 		L.Error()
 		return 0
 	}
 
-	moduleName, ok := L.ToString(2)
+	eventID, ok := L.ToString(2)
 	if !ok {
-		L.PushString("Expecting modulename as string")
+		L.PushString("Expecting eventid as string in second parameter")
 		L.Error()
 		return 0
 	}
 
-	var src *Source
-	var err error
-
-	switch moduleName[0] {
-	case '$':
-		src, err = vm.client.rooms[roomID].Event(moduleName)
-	default:
-		src, err = vm.client.rooms[roomID].StateEvent(moduleName)
+	room, ok := vm.client.rooms[roomID]
+	if !ok {
+		L.PushString("Room out of scope")
+		L.Error()
+		return 0
 	}
+
+	src, err := room.SourceFromEvent(eventID)
 	if err != nil {
-		L.PushString(fmt.Sprintf("Attempt to load %q failed: %s", moduleName, err))
+		L.PushString(fmt.Sprintf("Attempt to load %q failed: %s", eventID, err))
+		L.Error()
+		return 0
+	}
+
+	if err := vm.Execute(string(src.Source)); err != nil {
+		L.PushString(fmt.Sprintf("L.DoString: %s", err))
+		L.Error()
+		return 0
+	}
+
+	return 0
+}
+
+func (vm *Lua) importstate(L *lua.State) int {
+	roomID, ok := L.ToString(1)
+	if !ok {
+		L.PushString("Expecting roomid as string in first parameter")
+		L.Error()
+		return 0
+	}
+
+	eventType, ok := L.ToString(2)
+	if !ok {
+		L.PushString("Expecting eventtype as string in second parameter")
+		L.Error()
+		return 0
+	}
+
+	stateKey, ok := L.ToString(3)
+	if !ok {
+		L.PushString("Expecting statekey as string in third parameter")
+		L.Error()
+		return 0
+	}
+
+	room, ok := vm.client.rooms[roomID]
+	if !ok {
+		L.PushString("Room out of scope")
+		L.Error()
+		return 0
+	}
+
+	src, err := room.SourceFromStateEvent(eventType, stateKey)
+	if err != nil {
+		L.PushString(fmt.Sprintf("Attempt to load %q %q failed: %s", eventType, stateKey, err))
 		L.Error()
 		return 0
 	}
