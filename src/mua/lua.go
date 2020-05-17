@@ -19,7 +19,14 @@ func NewLua(client *Client) (*Lua, error) {
 		client,
 		map[string]LuaModule{
 			"mua": {
-				table: map[string]lua.Function{},
+				table: map[string]lua.Function{
+					"test": func(L *lua.State) int {
+						L.Global("print")
+						L.PushString("Test successful")
+						L.Call(1, 0)
+						return 0
+					},
+				},
 			},
 		},
 	}
@@ -70,6 +77,8 @@ func (vm *Lua) require(L *lua.State) int {
 	}
 
 	lua.NewLibrary(vm.State, module.RegistryFunctions())
+	vm.State.SetGlobal(moduleName)
+
 	return 1
 }
 
