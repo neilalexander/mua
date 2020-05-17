@@ -1,4 +1,4 @@
-package mua 
+package mua
 
 import (
 	"github.com/Shopify/go-lua"
@@ -17,4 +17,10 @@ func (m *LuaModule) RegistryFunctions() []lua.RegistryFunction {
 		})
 	}
 	return registry
+}
+
+var defaultModules = map[string]LuaModule{
+	"mua": {
+		table: moduleMua,
+	},
 }

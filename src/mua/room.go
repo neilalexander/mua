@@ -12,6 +12,42 @@ type Room struct {
 	roomID string
 }
 
+func (c *Client) NewRoom(roomID string) (*Room, error) {
+	/*
+		resp, err := c.client.JoinRoom(roomID, "", map[string]string{
+			"display_name": "Mua",
+		})
+
+		switch e := err.(type) {
+		case nil:
+			roomID = resp.RoomID
+		case gomatrix.HTTPError:
+			if e.Code == 404 {
+				create, createErr := c.client.CreateRoom(&gomatrix.ReqCreateRoom{
+					Name:       "Mua Room",
+					Visibility: "private",
+				})
+				if createErr != nil {
+					return nil, fmt.Errorf("c.client.CreateRoom: %w", createErr)
+				}
+				roomID = create.RoomID
+			} else {
+				return nil, fmt.Errorf("c.client.JoinRoom: %s (%s)", e.Message, e.Contents)
+			}
+		default:
+			return nil, fmt.Errorf("c.client.JoinRoom: %w", err)
+		}
+	*/
+
+	room := &Room{
+		client: c,
+		roomID: roomID,
+	}
+
+	c.rooms[roomID] = room
+	return room, nil
+}
+
 func (r *Room) Event(eventID string) (*gomatrix.Event, error) {
 	var event gomatrix.Event
 	err := r.client.client.Event(r.roomID, eventID, &event)
