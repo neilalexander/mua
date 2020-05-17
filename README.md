@@ -58,22 +58,18 @@ mua.source
 
 ## Run local scripts
 
-Run a local script, using the room state as the preloaded state:
+Run a local script, as compiled with `luac`:
 
 ```
-$ cat getevent.lua
-ev = event.new("$vnNJvIz7PStSIOE1NDEUxLmHUprPjrwrb556S-I6bjI")
-print(ev:type())
-print(ev:content())
-
-$ go run github.com/neilalexander/mua/cmd/muac test.lua
+$ go run github.com/neilalexander/mua/cmd/muac luac.out
 HELLO!
 This code is running from the room state. Neat!
 m.room.member
 {"avatar_url":"","displayname":"neilalexander (Dendrite)","membership":"join"}
 ```
 
-You can `load()` in your script as normal in order to import and run Lua from the room.
+You can `importevent()` or `importstate()` in your script as normal in order to
+import and run Lua bytecode from the room.
 
 ## Encode some Lua
 
